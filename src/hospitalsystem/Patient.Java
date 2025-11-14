@@ -29,12 +29,13 @@ public class Patient extends Person{
     private List<Appointment> appointments; // Patient "has-a" list of Appointments
 
     //constructor
-    public Patient(String name, String dateOfBirth, String gender, String patientID, String address,
+    public Patient(String name, String dateOfBirth, String gender, String contactNumber,
+                   String patientID, String address,
                    String emergencyContactName, String emergencyContactNumber,
                    String insurance, String allergies, String height, String weight,
                    String chronicIllnesses, String pastSurgeries, String currentMedications,
                    String familyHistory, String disability) {
-        super(name, dateOfBirth, gender); // Call Person constructor
+        super(name, dateOfBirth, gender, contactNumber); // Call Person constructor
         this.patientID = patientID;
         this.address = address;
         this.emergencyContactName = emergencyContactName;
@@ -86,11 +87,11 @@ public class Patient extends Person{
 
     @Override
     public String getDetails() {
-        Stringbuilder sb = new Stringbuilder(); //much for effient string chaining
+        StringBuilder sb = new StringBuilder(); // much for efficient string chaining
         sb.append("************-- ").append(getName()).append("'s Medical Information --************\n");
         sb.append("MRN: ").append(patientID).append("\n");
         sb.append("1. Name: ").append(getName()).append("\n");
-        sb.append("2. Date of Birth: ").append(getDateOfBirth()).append("\n"); // Changed from age
+        sb.append("2. Date of Birth: ").append(getDOB()).append("\n");
         sb.append("3. Sex: ").append(getSex()).append("\n");
         sb.append("4. Address: ").append(address).append("\n");
         sb.append("5. Height: ").append(height).append("\n");
@@ -107,14 +108,14 @@ public class Patient extends Person{
         sb.append("Current Medications: ").append(currentMedications).append("\n");
         sb.append("Family History: ").append(familyHistory).append("\n");
         sb.append("Disabilities: ").append(disability).append("\n");
-        
-        sb.append("|| Appointment History ||\n");
-        if (appointments.isEmpty()){
+
+        sb.append("\n|| Appointment History ||\n");
+        if (appointments == null || appointments.isEmpty()) {
             sb.append("No appointments found.\n");
         } else {
-            for (Appointment app : appointments) { //loop through appointments
+            for (Appointment app : appointments) {
                 sb.append("--------------------------------------------------\n");
-                sb.append(app.getDetails()); // get appointment details from appointment.java
+                sb.append(app.getDetails());
                 sb.append("--------------------------------------------------\n");
             }
         }
