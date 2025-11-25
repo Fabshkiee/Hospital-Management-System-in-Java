@@ -28,6 +28,8 @@ public class Patient extends Person{
 
     private List<Appointment> appointments; // Patient "has-a" list of Appointments
 
+    private boolean isArchived = false;
+
     //constructor
     public Patient(String name, String dateOfBirth, String gender, String contactNumber,
                    String patientID, String address,
@@ -49,7 +51,7 @@ public class Patient extends Person{
         this.currentMedications = "None";
         this.familyHistory = "None";
         this.disability = "None";
-
+        this.isArchived = false;
         this.appointments = new ArrayList<>(); // Initialize empty list of appointments            
     }
                 
@@ -88,7 +90,9 @@ public class Patient extends Person{
     @Override
     public String getDetails() {
         StringBuilder sb = new StringBuilder(); // much for efficient string chaining
-        sb.append("************-- ").append(getName()).append("'s Medical Information --************\n");
+        String status = isArchived ? "Archived" : "Active";
+
+        sb.append("************-- ").append(getName()).append("'s Medical Information --************\n").append(status).append(" --************\n");
         sb.append("MRN: ").append(patientID).append("\n");
         sb.append("1. Name: ").append(getName()).append("\n");
         sb.append("2. Date of Birth: ").append(getDOB()).append("\n");
