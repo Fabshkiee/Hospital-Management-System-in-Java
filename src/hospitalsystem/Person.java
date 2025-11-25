@@ -25,7 +25,7 @@ public abstract class Person { //abstract bcz we don't need this as an object bu
     public String getContactNumber(){return contactNumber;}
     //setter
     public void setName(String name){this.name = name;}
-    public void getDOB(String dateOfBirth){this.dateOfBirth = dateOfBirth;}
+    public void setDOB(String dateOfBirth){this.dateOfBirth = dateOfBirth;}
     public void setSex(String sex){this.sex = sex;}
     public void setContactNumber(String contactNumber){this.contactNumber = contactNumber;}
     //abstract method for subclasses to modify

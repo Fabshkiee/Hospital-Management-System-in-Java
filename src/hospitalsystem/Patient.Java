@@ -34,9 +34,7 @@ public class Patient extends Person{
     public Patient(String name, String dateOfBirth, String gender, String contactNumber,
                    String patientID, String address,
                    String emergencyContactName, String emergencyContactNumber,
-                   String insurance, String allergies, String height, String weight,
-                   String chronicIllnesses, String pastSurgeries, String currentMedications,
-                   String familyHistory, String disability) {
+                   String insurance, String allergies, String height, String weight) {
         super(name, dateOfBirth, gender, contactNumber); // Call Person constructor
         this.patientID = patientID;
         this.address = address;
