@@ -69,6 +69,7 @@ public class Patient extends Person{
     public String getCurrentMedications() { return currentMedications; }
     public String getFamilyHistory() { return familyHistory; }
     public String getDisability() { return disability; }
+    public boolean isArchived() { return isArchived; }
     public List<Appointment> getAppointments() { return appointments; }
 
     //setters
@@ -85,6 +86,7 @@ public class Patient extends Person{
     public void setCurrentMedications(String currentMedications) { this.currentMedications = currentMedications; }
     public void setFamilyHistory(String familyHistory) { this.familyHistory = familyHistory; }
     public void setDisability(String disability) { this.disability = disability; }
+    public void setArchived(boolean archived) { isArchived = archived; }
     public void addAppointment(Appointment appointment) { this.appointments.add(appointment); }
 
     @Override
