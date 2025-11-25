@@ -13,7 +13,7 @@ public interface IDataManager {
 
     void archivePatient(Patient patient);
     
-    boolean patientExists(Patient patientID);
+    boolean patientExists(String patientID);
 
     List<Patient> loadAllPatients();
 }

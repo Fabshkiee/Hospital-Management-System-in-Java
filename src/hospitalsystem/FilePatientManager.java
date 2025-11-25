@@ -152,16 +152,49 @@ public class FilePatientManager implements IDataManager {
         }
     }
 
+    @Override
+    public boolean patientExists(String patientID){
+        return Files.exists(Paths.get(patientDirectory, patientID + ".txt")) ||
+               Files.exists(Paths.get(archiveDirectory, patientID + ".txt"));
+    }
 
+    @Override
+    public List<Patient> loadAllPatients(){
+        List<Patient> patients = new ArrayList<>();
 
+        loadfromDirectory(patientDirectory, patients);
+        loadfromDirectory(archiveDirectory, patients);
 
+        return patients;
+    }
 
+    private void loadfromDirectory(String dirPath, List<Patient> list){ //load patients from specified directory
+        File dir = new File(dirPath);
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt")); //filter only .txt files
+        if (files != null) {
+            for (File file : files){ 
+                String patientID = file.getName().replace(".txt", ""); //get patient id
+                Patient patient = loadPatient(patientID); 
+                if (patient != null) list.add(patient); //add patient to list
+            }
+        }
+    }
 
+    private Appointment parseAppointmentFromString(Patient patient, String appLine) { //reads appointment from file
+        try {
+            String[] parts = appLine.split("::"); 
+            if (!parts[0].equals("APP") || parts.length < 7) return null;
+            
+            LocalDateTime timeCreated = LocalDateTime.parse(parts[1], TIMESTAMP_FORMAT);
+            Doctor doctor = new Doctor(parts[2], "N/A", "N/A", "N/A", parts[3]);
+            LocalDate appDate = LocalDate.parse(parts[4], DATE_FORMAT);
+            LocalTime appTime = LocalTime.parse(parts[5].toUpperCase(), TIME_FORMAT);
+            String concerns = parts[6];
+            
+            return new Appointment(patient, doctor, appDate, appTime, concerns, timeCreated);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
 
-
-
-
-
-
-
-}   
