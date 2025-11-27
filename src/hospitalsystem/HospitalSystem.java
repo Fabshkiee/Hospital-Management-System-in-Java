@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map; 
 import java.util.HashMap; 
 import java.util.Scanner;
+import javax.sound.midi.Soundbank;
 
 
 public class HospitalSystem {
@@ -71,6 +72,21 @@ public class HospitalSystem {
         String allergies = getStringInput("Allergies: ");
         String height = getStringInput("Height: ");
         String weight = getStringInput("Weight: ");
+
+        String patientID = generateNewMrn();
+        System.out.println("Generated " + name + "'s ID (MRN): " + patientID);
+
+        Patient patient = new Patient(name, dob, sex, contactNum, patientID, address, emConName, emConNum, insurance, allergies, height, weight);
+
+        patient.setChronicIllnesses(getYesNoDetails("Any chronic illnesses? (yes/no): "));
+        patient.setPastSurgeries(getYesNoDetails("Any surgeries in the past? (yes/no): "));
+        patient.setCurrentMedications(getYesNoDetails("Currently taking any medications? (yes/no): "));
+        patient.setFamilyHistory(getYesNoDetails("Any family history of diseases? (yes/no): "));
+        patient.setDisability(getYesNoDetails("Any disabilities? (yes/no): "));
+
+        patientMap.put(patientID, patient); //add mrn and patient together to map
+        dataManager.savePatient(patient); //save patient using data manager
+        System.out.println("Patient record created successfully.");
     }
 
 
@@ -102,4 +118,14 @@ public class HospitalSystem {
             System.out.println("Invalid input. Please try again.");
         }
     }
+
+    private String getYesNoDetails(String prompt) {
+        String response = getValidatedStringInput(prompt, new String[]{"yes", "no"});
+        if (response.equalsIgnoreCase("yes")) return getStringInput("Please specify: ");
+        return "None";
+    }
+
+    
 }
+
+
