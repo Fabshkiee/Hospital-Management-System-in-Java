@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map; 
 import java.util.HashMap; 
 import java.util.Scanner;
+import java.util.function.Consumer; 
 
 
 public class HospitalSystem {
@@ -113,6 +114,28 @@ public class HospitalSystem {
         }
     }
 
+    public void updateExistingPatient(){
+        System.out.println("--- Update Existing Patient Information ---");
+        Patient patient = searchPatientByName();
+        if (patient == null) return;
+
+        if (patient.isArchived()) {
+            System.out.println("ERROR: Cannot update an Archived patient.");
+            return;
+        }
+
+        System.out.println("Now updating " + patient.getName() + ". Press Enter to skip a field.");
+        updateStringField("Name", patient.getName(), patient::setName);
+        updateStringField("Date of Birth", patient.getDOB(), patient::setDOB);
+        updateStringField("Address", patient.getAddress(), patient::setAddress);
+        updateStringField("Contact Number", patient.getContactNumber(), patient::setContactNumber);
+        updateStringField("Emergency Contact Name", patient.getEmergencyContactName(), patient::setEmergencyContactName);
+        updateStringField("Emergency Contact Number", patient.getEmergencyContactNumber(), patient::setEmergencyContactNumber);
+        updateStringField("Insurance", patient.getInsurance(), patient::setInsurance);
+        updateStringField("Allergies", patient.getAllergies(), patient::setAllergies);
+        updateStringField("Height", patient.getHeight(), patient::setHeight);
+        updateStringField("Weight", patient.getWeight(), patient::setWeight);
+    }
 
 
     //helper methods
@@ -195,5 +218,10 @@ public class HospitalSystem {
 
     }
 
-}
+    private void updateStringField(String fieldName, String currentValue, Consumer<String> setter) {
+        System.out.print(fieldName + " [" + currentValue + "]: ");
+        String input = scanner.nextLine();
+        if (!input.trim().isEmpty()) setter.accept(input); 
+    }
 
+}
