@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map; 
 import java.util.HashMap; 
 import java.util.Scanner;
-import javax.sound.midi.Soundbank;
 
 
 public class HospitalSystem {
@@ -89,7 +88,30 @@ public class HospitalSystem {
         System.out.println("Patient record created successfully.");
     }
 
+    public void searchPatientMenu(){
+        System.out.println("""
+        --- Search Patient Records ---
+        1. Search by Name
+        2. Search by Patient ID (MRN)
+        0. Return to Main Menu
+                """);
+        int choice = Main.getIntegerInput(0, 2);
+        Patient patient = null;
 
+        switch (choice){
+            case 1: patient = searchPatientByName(); break;
+            case 2: patient = searchPatientByMRN(); break;
+            case 0: return;
+        }
+
+        if (patient != null){
+            System.out.println("\n--- Displaying Full Patient Record ---");
+            if (patient.isArchived()) {
+                System.out.println("!!! THIS PATIENT IS ARCHIVED - READ ONLY !!!");
+            }
+            System.out.println(patient.getDetails());
+        }
+    }
 
 
 
@@ -125,7 +147,53 @@ public class HospitalSystem {
         return "None";
     }
 
-    
-}
+    private Patient searchPatientByName(){
+        System.out.println("Enter Patient Name to search: ");
+        String searchInput = scanner.nextLine().trim();
 
+        List<Patient> matchedPatients = new ArrayList<>();
+        for (Patient p : patientMap.values()){
+            if (p.getName().toLowerCase().contains(searchInput.toLowerCase())){
+                matchedPatients.add(p); //add matched patients to list
+            }
+        }
+
+        if (matchedPatients.isEmpty()){
+            System.out.println("No patients found with the name containing: " + searchInput);
+            return null;
+        }
+
+        System.out.println("\n--- Search Results ---");
+        System.out.printf("%-5s %-10s %-25s %-15s %-10s\n", "ID", "MRN", "Name", "DOB", "Status");
+        System.out.println("-----------------------------------------------------------------------");
+
+        for (int i = 0; i < matchedPatients.size(); i++){
+            Patient p = matchedPatients.get(i);
+            String status = p.isArchived() ? "Archived" : "Active";
+            System.out.printf("%-5d %-10s %-25s %-15s %-10s\n", i + 1, 
+            p.getPatientID(), p.getName(), p.getDOB(), status);
+        }
+        System.out.println("-----------------------------------------------------------------------");
+
+        System.out.println("Enter ID number of the patient to view full record, or 0 to cancel: ");
+        int choice = Main.getIntegerInput(0, matchedPatients.size());
+
+        if (choice == 0) {
+            return null; //cancel
+        } 
+        return matchedPatients.get(choice - 1); //return selected patient
+
+    }
+    private Patient searchPatientByMRN(){
+        String patientID = getStringInput("Enter Patient's MRN: ");
+        if (patientMap.containsKey(patientID)){
+            return patientMap.get(patientID);
+        } else {
+            System.out.println("Error: No patient found with MRN " + patientID);
+            return null;
+        }
+
+    }
+
+}
 
