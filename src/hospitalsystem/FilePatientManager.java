@@ -1,200 +1,122 @@
 package hospitalsystem;
-import java.io.File; //for file handling
-import java.io.FileWriter; //for writing to files
-import java.io.IOException; //io exception handling
-import java.io.PrintWriter; //format text output
-import java.nio.file.Files; //file operations like move or copy
-import java.nio.file.Path; //file path representation
-import java.nio.file.Paths; //path object
-import java.nio.file.StandardCopyOption;  //for replace_existing
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter; //for time
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-/**
- * Implementation of IDataManager that handles patient data using file storage.
- */
+// Jackson Imports
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 public class FilePatientManager implements IDataManager {
+
     private final String patientDirectory;
     private final String archiveDirectory;
+    private final ObjectMapper mapper; // The Jackson worker
 
-    //time formats
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("h:mm a");
-    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yy h:mm:ss a");
-
-    //constructor
-    public FilePatientManager(String directory){
+    public FilePatientManager(String directory) {
         this.patientDirectory = directory;
-        this.archiveDirectory = directory + File.separator + "_archive";
+        this.archiveDirectory = directory + "_archive";
+
+        // Initialize Jackson
+        this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule()); // Fix for Dates
+        this.mapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty printing
 
         try {
             Files.createDirectories(Paths.get(patientDirectory));
             Files.createDirectories(Paths.get(archiveDirectory));
-        } catch (IOException e){
-            System.out.println("Error creating directories: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error creating directories: " + e.getMessage());
         }
     }
 
     @Override
-    public void savePatient(Patient patient){
-        String folder = patient.isArchived() ? archiveDirectory : patientDirectory; //if archived save to archive folder
+    public void savePatient(Patient patient) {
+        String folder = patient.isArchived() ? archiveDirectory : patientDirectory;
+        File file = Paths.get(folder, patient.getPatientID() + ".json").toFile();
 
-        String fileName = patient.getPatientID() + ".txt"; //file name based on mrn
-        Path filePath = Paths.get(folder, fileName);
-
-        try (FileWriter fw = new FileWriter(filePath.toFile(), false); //locate and open file for writing
-            PrintWriter pw = new PrintWriter(fw)) { //wrap file writer in print writer for formatted output
-                pw.println(patient.getPatientID());
-                pw.println(patient.getName());
-                pw.println(patient.getDOB());
-                pw.println(patient.getSex());
-                pw.println(patient.getAddress());
-                pw.println(patient.getContactNumber());
-                pw.println(patient.getEmergencyContactName());
-                pw.println(patient.getEmergencyContactNumber());
-                pw.println(patient.getInsurance());
-                pw.println(patient.getAllergies());
-                pw.println(patient.getHeight());
-                pw.println(patient.getWeight());
-                pw.println(patient.getChronicIllnesses());
-                pw.println(patient.getPastSurgeries());
-                pw.println(patient.getCurrentMedications());
-                pw.println(patient.getFamilyHistory());
-                pw.println(patient.getDisability());
-
-                pw.print("---APPOINTMENTS---");
-                for (Appointment app : patient.getAppointments()) {
-                    pw.println(app.toFileString()); // Save each appointment
-                }
-            } catch (IOException e) {
-                System.out.println("Error saving patient data: " + e.getMessage());
-            }
-    }
-
-    @Override
-    public void archivePatient(Patient patient){
-        String fileName = patient.getPatientID() + ".txt";
-        Path sourcePath = Paths.get(patientDirectory, fileName);
-        Path targetPath = Paths.get(archiveDirectory, fileName);
-
-        try{
-            if(Files.exists(sourcePath)){
-                Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING); //move ang file to archive and replace if same exist
-            }
-        } catch (IOException e){
-            System.out.println("Error archiving patient file: " + e.getMessage());
-        }
-    }
-
-
-    @Override
-    public Patient loadPatient(String patientID){
-        String fileName = patientID + ".txt";
-
-        // Try active folder first
-        Path filePath = Paths.get(patientDirectory, fileName);
-        boolean isArchived = false;
-        
-        // If not in active, try archive folder
-        if (!Files.exists(filePath)) {
-            filePath = Paths.get(archiveDirectory, fileName);
-            isArchived = true;
-        }
-
-        if (!Files.exists(filePath)) {
-            return null; // Not found anywhere
-        }
-
-        try (Scanner fileScanner = new Scanner(filePath.toFile())){ //scans file
-            String id = fileScanner.nextLine(); //read lines in order
-            String name = fileScanner.nextLine();
-            String dob = fileScanner.nextLine();
-            String sex = fileScanner.nextLine();
-            String address = fileScanner.nextLine();
-            String contactNum = fileScanner.nextLine();
-            String emConName = fileScanner.nextLine();
-            String emConNum = fileScanner.nextLine();
-            String insurance = fileScanner.nextLine();
-            String allergies = fileScanner.nextLine();
-            String height = fileScanner.nextLine();
-            String weight = fileScanner.nextLine();
-
-            Patient patient = new Patient(name, dob, sex, contactNum,
-                                          id, address,
-                                          emConName, emConNum,
-                                          insurance, allergies, height, weight); //create patient object
-            patient.setArchived(isArchived); //set archived status
-
-            patient.setChronicIllnesses(fileScanner.nextLine());
-            patient.setPastSurgeries(fileScanner.nextLine());
-            patient.setCurrentMedications(fileScanner.nextLine());
-            patient.setFamilyHistory(fileScanner.nextLine());
-            patient.setDisability(fileScanner.nextLine());
-
-            if (fileScanner.hasNextLine()) fileScanner.nextLine(); // Skip appointments header
-
-            while (fileScanner.hasNextLine()){
-                String appLine = fileScanner.nextLine();
-                Appointment app = parseAppointmentFromString(patient, appLine);
-                if (app != null) patient.addAppointment(app); 
-            }
-
-            return patient; //output the patient object
-
-        } catch (IOException e){
-            System.out.println("Error loading patient file: " +  fileName + ": " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public boolean patientExists(String patientID){
-        return Files.exists(Paths.get(patientDirectory, patientID + ".txt")) ||
-               Files.exists(Paths.get(archiveDirectory, patientID + ".txt"));
-    }
-
-    @Override
-    public List<Patient> loadAllPatients(){
-        List<Patient> patients = new ArrayList<>();
-
-        loadfromDirectory(patientDirectory, patients);
-        loadfromDirectory(archiveDirectory, patients);
-
-        return patients;
-    }
-
-    private void loadfromDirectory(String dirPath, List<Patient> list){ //load patients from specified directory
-        File dir = new File(dirPath);
-        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt")); //filter only .txt files
-        if (files != null) {
-            for (File file : files){ 
-                String patientID = file.getName().replace(".txt", ""); //get patient id
-                Patient patient = loadPatient(patientID); 
-                if (patient != null) list.add(patient); //add patient to list
-            }
-        }
-    }
-
-    private Appointment parseAppointmentFromString(Patient patient, String appLine) { //reads appointment from file
         try {
-            String[] parts = appLine.split("::"); 
-            if (!parts[0].equals("APP") || parts.length < 7) return null;
-            
-            LocalDateTime timeCreated = LocalDateTime.parse(parts[1], TIMESTAMP_FORMAT);
-            Doctor doctor = new Doctor(parts[2], "N/A", "N/A", "N/A", parts[3]);
-            LocalDate appDate = LocalDate.parse(parts[4], DATE_FORMAT);
-            LocalTime appTime = LocalTime.parse(parts[5].toUpperCase(), TIME_FORMAT);
-            String concerns = parts[6];
-            
-            return new Appointment(patient, doctor, appDate, appTime, concerns, timeCreated);
-        } catch (Exception e) {
+            // Write the object directly to JSON
+            mapper.writeValue(file, patient);
+        } catch (IOException e) {
+            System.err.println("Error saving patient: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Patient loadPatient(String patientID) {
+        String fileName = patientID + ".json";
+        Path path = Paths.get(patientDirectory, fileName);
+
+        // Check active folder first, then archive
+        if (!Files.exists(path)) {
+            path = Paths.get(archiveDirectory, fileName);
+        }
+
+        if (!Files.exists(path)) return null;
+
+        try {
+            // Read JSON file directly into a Patient object
+            return mapper.readValue(path.toFile(), Patient.class);
+        } catch (IOException e) {
+            System.err.println("Error loading patient: " + e.getMessage());
+            e.printStackTrace();
             return null;
+        }
+    }
+
+    @Override
+    public void archivePatient(Patient patient) {
+        String fileName = patient.getPatientID() + ".json";
+        Path source = Paths.get(patientDirectory, fileName);
+        Path target = Paths.get(archiveDirectory, fileName);
+
+        try {
+            if (Files.exists(source)) {
+                // Move file
+                Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+                // Update object state and re-save (so the JSON file says "isArchived": true)
+                patient.setArchived(true);
+                savePatient(patient);
+            }
+        } catch (IOException e) {
+            System.err.println("Error archiving: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean patientExists(String patientID) {
+        return Files.exists(Paths.get(patientDirectory, patientID + ".json")) ||
+                Files.exists(Paths.get(archiveDirectory, patientID + ".json"));
+    }
+
+    @Override
+    public List<Patient> loadAllPatients() {
+        List<Patient> list = new ArrayList<>();
+        loadFromDir(patientDirectory, list);
+        loadFromDir(archiveDirectory, list);
+        return list;
+    }
+
+    private void loadFromDir(String dir, List<Patient> list) {
+        File folder = new File(dir);
+        // Only look for .json files
+        File[] files = folder.listFiles((d, name) -> name.endsWith(".json"));
+
+        if (files != null) {
+            for (File f : files) {
+                String id = f.getName().replace(".json", "");
+                Patient p = loadPatient(id);
+                if (p != null) list.add(p);
+            }
         }
     }
 }
-

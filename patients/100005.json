@@ -1,0 +1,30 @@
+{
+  "patientID": "100005",
+  "name": "Sarah Geronimo",
+  "dateOfBirth": "1988-07-25",
+  "sex": "f",
+  "contactNumber": "09178889999",
+  "address": "Pasig City",
+  "emergencyContactName": "Matteo Guidicelli",
+  "emergencyContactNumber": "09180001111",
+  "insurance": "Medicard",
+  "allergies": "None",
+  "height": "1.63",
+  "weight": "52",
+  "chronicIllnesses": "None",
+  "pastSurgeries": "None",
+  "currentMedications": "None",
+  "familyHistory": "None",
+  "disability": "None",
+  "isArchived": false,
+  "appointments": [
+    {
+      "timeCreated": "2025-11-28 10:15:00",
+      "date": "2025-12-15",
+      "time": "09:00",
+      "doctorName": "Dr. Tan",
+      "doctorSpecialty": "ENT Specialist",
+      "concerns": "Throat checkup"
+    }
+  ]
+}

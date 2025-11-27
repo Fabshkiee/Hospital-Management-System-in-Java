@@ -1,0 +1,21 @@
+{
+  "patientID": "200001",
+  "name": "Andres Bonifacio",
+  "dateOfBirth": "1863-11-30",
+  "sex": "m",
+  "contactNumber": "N/A",
+  "address": "Tondo, Manila",
+  "emergencyContactName": "Gregoria de Jesus",
+  "emergencyContactNumber": "N/A",
+  "insurance": "None",
+  "allergies": "None",
+  "height": "1.65",
+  "weight": "60",
+  "chronicIllnesses": "None",
+  "pastSurgeries": "None",
+  "currentMedications": "None",
+  "familyHistory": "None",
+  "disability": "None",
+  "isArchived": true,
+  "appointments": []
+}

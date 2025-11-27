@@ -1,0 +1,30 @@
+{
+  "patientID": "200002",
+  "name": "Jose Rizal",
+  "dateOfBirth": "1861-06-19",
+  "sex": "m",
+  "contactNumber": "N/A",
+  "address": "Calamba, Laguna",
+  "emergencyContactName": "Teodora Alonso",
+  "emergencyContactNumber": "N/A",
+  "insurance": "None",
+  "allergies": "None",
+  "height": "1.60",
+  "weight": "55",
+  "chronicIllnesses": "None",
+  "pastSurgeries": "None",
+  "currentMedications": "None",
+  "familyHistory": "None",
+  "disability": "None",
+  "isArchived": true,
+  "appointments": [
+    {
+      "timeCreated": "1896-12-01 08:00:00",
+      "date": "1896-12-30",
+      "time": "07:00",
+      "doctorName": "Dr. Castillo",
+      "doctorSpecialty": "General Physician",
+      "concerns": "General checkup before travel"
+    }
+  ]
+}

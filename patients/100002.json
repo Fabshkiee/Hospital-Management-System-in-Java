@@ -1,0 +1,21 @@
+{
+  "patientID": "100002",
+  "name": "Juan Dela Cruz",
+  "dateOfBirth": "1988-07-22",
+  "sex": "m",
+  "contactNumber": "09229876543",
+  "address": "Quezon City",
+  "emergencyContactName": "Maria Dela Cruz",
+  "emergencyContactNumber": "09221234567",
+  "insurance": "Maxicare",
+  "allergies": "None",
+  "height": "1.75",
+  "weight": "70",
+  "chronicIllnesses": "None",
+  "pastSurgeries": "None",
+  "currentMedications": "None",
+  "familyHistory": "Diabetes",
+  "disability": "None",
+  "isArchived": false,
+  "appointments": []
+}

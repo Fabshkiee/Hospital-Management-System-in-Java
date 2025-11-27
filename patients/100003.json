@@ -1,0 +1,30 @@
+{
+  "patientID": "100003",
+  "name": "Liza Soberano",
+  "dateOfBirth": "1998-01-04",
+  "sex": "f",
+  "contactNumber": "09151112222",
+  "address": "Taguig City",
+  "emergencyContactName": "Enrique Gil",
+  "emergencyContactNumber": "09163334444",
+  "insurance": "Intellicare",
+  "allergies": "Dust Mites",
+  "height": "1.68",
+  "weight": "50",
+  "chronicIllnesses": "None",
+  "pastSurgeries": "None",
+  "currentMedications": "Vitamins",
+  "familyHistory": "None",
+  "disability": "None",
+  "isArchived": false,
+  "appointments": [
+    {
+      "timeCreated": "2025-11-25 14:30:00",
+      "date": "2025-12-10",
+      "time": "15:00",
+      "doctorName": "Dr. Belo",
+      "doctorSpecialty": "Dermatologist",
+      "concerns": "Skin consultation"
+    }
+  ]
+}

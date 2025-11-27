@@ -1,0 +1,21 @@
+{
+  "patientID": "100004",
+  "name": "Ramon Magsaysay",
+  "dateOfBirth": "1960-08-31",
+  "sex": "m",
+  "contactNumber": "09085556666",
+  "address": "Manila",
+  "emergencyContactName": "Luz Magsaysay",
+  "emergencyContactNumber": "09097778888",
+  "insurance": "PhilHealth",
+  "allergies": "Seafood",
+  "height": "1.70",
+  "weight": "75",
+  "chronicIllnesses": "Hypertension",
+  "pastSurgeries": "None",
+  "currentMedications": "Amlodipine",
+  "familyHistory": "Heart Disease",
+  "disability": "None",
+  "isArchived": false,
+  "appointments": []
+}

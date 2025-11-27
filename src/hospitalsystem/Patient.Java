@@ -1,7 +1,9 @@
 package hospitalsystem;
 import java.util.ArrayList;
-import java.util.List; 
-
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 /*
  * Patient.java
  * inherits from Person.java
@@ -30,12 +32,28 @@ public class Patient extends Person{
 
     private boolean isArchived = false;
 
+    public Patient(){
+        super("", "", "", "");
+        this.appointments = new ArrayList<>();
+    }
+
+
     //constructor
-    public Patient(String name, String dateOfBirth, String gender, String contactNumber,
-                   String patientID, String address,
-                   String emergencyContactName, String emergencyContactNumber,
-                   String insurance, String allergies, String height, String weight) {
-        super(name, dateOfBirth, gender, contactNumber); // Call Person constructor
+    @JsonCreator
+    public Patient(@JsonProperty("name") String name,
+                   @JsonProperty("dateOfBirth") String dateOfBirth,
+                   @JsonProperty("sex") String sex,
+                   @JsonProperty("contactNumber") String contactNumber,
+                   @JsonProperty("patientID") String patientID,
+                   @JsonProperty("address") String address,
+                   @JsonProperty("emergencyContactName") String emergencyContactName,
+                   @JsonProperty("emergencyContactNumber") String emergencyContactNumber,
+                   @JsonProperty("insurance") String insurance,
+                   @JsonProperty("allergies") String allergies,
+                   @JsonProperty("height") String height,
+                   @JsonProperty("weight") String weight) {
+
+        super(name, dateOfBirth, sex, contactNumber);
         this.patientID = patientID;
         this.address = address;
         this.emergencyContactName = emergencyContactName;
@@ -44,15 +62,16 @@ public class Patient extends Person{
         this.allergies = allergies;
         this.height = height;
         this.weight = weight;
+        this.appointments = new ArrayList<>();
+
         this.chronicIllnesses = "None";
         this.pastSurgeries = "None";
         this.currentMedications = "None";
         this.familyHistory = "None";
         this.disability = "None";
         this.isArchived = false;
-        this.appointments = new ArrayList<>(); // Initialize empty list of appointments            
     }
-                
+
     //getters
     public String getPatientID() { return patientID; }
     public String getAddress() { return address; }
@@ -67,7 +86,10 @@ public class Patient extends Person{
     public String getCurrentMedications() { return currentMedications; }
     public String getFamilyHistory() { return familyHistory; }
     public String getDisability() { return disability; }
+
+    @JsonProperty("isArchived") // Forces the key to be "isArchived"
     public boolean isArchived() { return isArchived; }
+
     public List<Appointment> getAppointments() { return appointments; }
 
     //setters
@@ -88,6 +110,7 @@ public class Patient extends Person{
     public void addAppointment(Appointment appointment) { this.appointments.add(appointment); }
 
     @Override
+    @JsonIgnore // Ensure the string block is not saved to JSON
     public String getDetails() {
         StringBuilder sb = new StringBuilder(); // much for efficient string chaining
         String status = isArchived ? "Archived" : "Active";

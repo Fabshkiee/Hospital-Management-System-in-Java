@@ -8,7 +8,66 @@ public class Main {
 
     public static void main(String[] args) {
         system.initialize(); //load doctors
-        //TODO: add main menu
+        runMainMenu();
+        
+    }
+
+    private static void runMainMenu() {
+        boolean isRunning = true;
+
+        while (isRunning) {
+            printMainMenu();
+            int choice = getIntegerInput(0, 5);
+
+            switch (choice) {
+                case 1:
+                    system.createNewPatient();
+                    break;
+                case 2:
+                    system.updateExistingPatient();
+                    break;
+                case 3:
+                    system.scheduleNewAppointment();
+                    break;
+                case 4:
+                    // Updated to call the new search menu
+                    system.searchPatientMenu();
+                    break;
+                case 5:
+                    system.archivePatientRecord();
+                    break;
+                case 0:
+                    isRunning = false;
+                    System.out.println("Thank you for using the Hospital Management System. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 0 and 5.");
+            }
+
+            if (isRunning) {
+                System.out.println("\nPress Enter to return to the main menu...");
+                scanner.nextLine(); // Wait for user
+            }
+        }
+        scanner.close(); // Close the scanner when the program exits
+    }
+
+    private static void printMainMenu() {
+        clearScreen();
+        System.out.println("\n***********************************************");
+        System.out.println("* *");
+        System.out.println("* HOSPITAL MANAGEMENT SYSTEM MENU       *");
+        System.out.println("* *");
+        System.out.println("***********************************************");
+        System.out.println("* 1. Create New Patient Record              *");
+        System.out.println("* 2. Update Existing Patient's Information  *");
+        System.out.println("* 3. Add Patient's Appointment              *");
+        // Updated menu text
+        System.out.println("* 4. Search/View Patient Information        *");
+        System.out.println("* 5. Delete Patient's Information           *");
+        System.out.println("* 0. Exit Program                           *");
+        System.out.println("***********************************************");
+        System.out.print("\nPlease input a number to continue: ");
     }
 
     public static int getIntegerInput(int min, int max) {

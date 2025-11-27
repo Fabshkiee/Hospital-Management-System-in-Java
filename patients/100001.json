@@ -1,0 +1,30 @@
+{
+  "patientID": "100001",
+  "name": "Maria Santos",
+  "dateOfBirth": "1995-03-15",
+  "sex": "f",
+  "contactNumber": "09171234567",
+  "address": "Makati City",
+  "emergencyContactName": "Jose Santos",
+  "emergencyContactNumber": "09181234567",
+  "insurance": "PhilHealth",
+  "allergies": "Penicillin",
+  "height": "1.60",
+  "weight": "55",
+  "chronicIllnesses": "Asthma",
+  "pastSurgeries": "Appendectomy",
+  "currentMedications": "Salbutamol Inhaler",
+  "familyHistory": "Hypertension",
+  "disability": "None",
+  "isArchived": false,
+  "appointments": [
+    {
+      "timeCreated": "2025-11-20 09:00:00",
+      "date": "2025-12-01",
+      "time": "10:00",
+      "doctorName": "Dr. Cruz",
+      "doctorSpecialty": "Pulmonologist",
+      "concerns": "Regular checkup for asthma"
+    }
+  ]
+}

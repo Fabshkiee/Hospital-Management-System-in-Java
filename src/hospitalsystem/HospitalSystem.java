@@ -137,6 +137,165 @@ public class HospitalSystem {
         updateStringField("Weight", patient.getWeight(), patient::setWeight);
     }
 
+    public void archivePatientRecord() {
+        System.out.println("--- Archive Patient's Information ---");
+        Patient patient = searchPatientByName();
+        if (patient == null) return;
+
+        if (patient.isArchived()) {
+            System.out.println("Patient is already archived.");
+            return;
+        }
+
+        System.out.println("WARNING: This will ARCHIVE the record for " + patient.getName() + " (MRN: " + patient.getPatientID() + ").");
+        System.out.println("Archived patients cannot be modified.");
+        String confirm = getValidatedStringInput("Are you sure? (yes/no): ", new String[]{"yes", "no"});
+
+        if (confirm.equalsIgnoreCase("yes")) {
+            // Archive Logic
+            dataManager.archivePatient(patient);
+            System.out.println("Successfully archived patient record.");
+        } else {
+            System.out.println("Operation cancelled.");
+        }
+    }
+
+    public void scheduleNewAppointment() {
+        System.out.println("--- Schedule New Appointment ---");
+        Patient patient = searchPatientByName();
+        if (patient == null) return;
+
+        if (patient.isArchived()) {
+            System.out.println("ERROR: Cannot schedule appointments for an Archived patient.");
+            return;
+        }
+
+        System.out.println("Scheduling for: " + patient.getName());
+
+        // 1. Get Concern
+        System.out.println("\nCategories of Concern:");
+        System.out.println("1. Physical Health");
+        System.out.println("2. Mental Health");
+        System.out.println("3. Women's Health");
+        System.out.println("4. Men's Health");
+        System.out.println("5. Child Health");
+        int categoryChoice = Main.getIntegerInput(1, 5);
+        String concerns = getStringInput("Briefly describe the concern: ");
+
+        // 2. Select Doctor
+        Doctor selectedDoctor = selectDoctor(categoryChoice);
+
+        // 3. Display Doctor's Existing Schedule
+        displayDoctorSchedule(selectedDoctor);
+
+        // 4. Get Date and Time (With Validation)
+        LocalDateTime validDateTime = getValidAppointmentDateTime(selectedDoctor);
+
+        // 5. Save
+        Appointment appointment = new Appointment(patient, selectedDoctor, validDateTime.toLocalDate(), validDateTime.toLocalTime(), concerns);
+        patient.addAppointment(appointment);
+        dataManager.savePatient(patient);
+
+        System.out.println("\n--- Appointment Confirmed! ---");
+        System.out.println("Patient: " + patient.getName());
+        System.out.println("Doctor: " + selectedDoctor.getName());
+        System.out.println("Date: " + validDateTime.format(DATE_FMT));
+        System.out.println("Time: " + validDateTime.format(TIME_FMT));
+    }
+
+    private void displayDoctorSchedule(Doctor doctor) {
+        System.out.println("\nChecking schedule for " + doctor.getName() + "...");
+        System.out.println("Doctor's Shift: " + SHIFT_START.format(TIME_FMT) + " - " + SHIFT_END.format(TIME_FMT));
+
+        List<Appointment> doctorApps = new ArrayList<>();
+
+        // Search ALL patients to find appointments for this doctor
+        for (Patient p : patientMap.values()) {
+            for (Appointment app : p.getAppointments()) {
+                // Check if appointment is for this doctor and is in the future
+                if (app.getDoctor().getName().equals(doctor.getName()) &&
+                        (app.getAppointmentDate().isAfter(LocalDate.now()) || app.getAppointmentDate().isEqual(LocalDate.now()))) {
+                    doctorApps.add(app);
+                }
+            }
+        }
+
+        if (doctorApps.isEmpty()) {
+            System.out.println("This doctor has no upcoming appointments.");
+        } else {
+            // Sort by date/time
+            doctorApps.sort(Comparator.comparing(Appointment::getAppointmentDate).thenComparing(Appointment::getAppointmentTime));
+
+            System.out.println("--- Doctor's Busy Slots ---");
+            for (Appointment app : doctorApps) {
+                System.out.println(app.getAppointmentDate().format(DATE_FMT) + " at " +
+                        app.getAppointmentTime().format(TIME_FMT) + " -- [OCCUPIED]");
+            }
+            System.out.println("---------------------------");
+        }
+    }
+
+    private LocalDateTime getValidAppointmentDateTime(Doctor doctor) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+
+        while (true) {
+            try {
+                // Get Date
+                System.out.println("\nEnter Date (MM/dd/yy): ");
+                String dateStr = scanner.nextLine();
+                LocalDate date = LocalDate.parse(dateStr, dateFormatter);
+
+                if (date.isBefore(LocalDate.now())) {
+                    System.out.println("Error: Date must be in the future.");
+                    continue;
+                }
+
+                // Get Time
+                System.out.println("Enter Time (e.g. 9:00 AM, 2:30 PM): ");
+                System.out.println("Note: 30-min intervals only (9:00, 9:30...)");
+                String timeStr = scanner.nextLine();
+                LocalTime time = LocalTime.parse(timeStr.toUpperCase(), timeFormatter);
+
+                // 1. Shift Check
+                if (time.isBefore(SHIFT_START) || time.isAfter(SHIFT_END)) {
+                    System.out.println("Error: Doctor is off duty. Shift is " + SHIFT_START.format(TIME_FMT) + " to " + SHIFT_END.format(TIME_FMT));
+                    continue;
+                }
+
+                // 2. Interval Check
+                if (time.getMinute() != 0 && time.getMinute() != 30) {
+                    System.out.println("Error: Appointments must be on the hour or half-hour (e.g. 9:00 or 9:30).");
+                    continue;
+                }
+
+                // 3. Conflict Check
+                boolean conflict = false;
+                for (Patient p : patientMap.values()) {
+                    for (Appointment app : p.getAppointments()) {
+                        if (app.getDoctor().getName().equals(doctor.getName()) &&
+                                app.getAppointmentDate().equals(date) &&
+                                app.getAppointmentTime().equals(time)) {
+                            conflict = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (conflict) {
+                    System.out.println("Error: Doctor is already booked at this time. Please choose another.");
+                    continue;
+                }
+
+                return LocalDateTime.of(date, time);
+
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid format. Date: MM/dd/yy, Time: h:mm AM/PM");
+            }
+        }
+    }
+
+
 
     //helper methods
     private String getStringInput(String prompt) {
@@ -149,7 +308,7 @@ public class HospitalSystem {
         do { 
             int n = (int)(Math.random() * 900000) + 100000; //generate random 6-digit number
             mrn = String.valueOf(n);
-        } while (patientMap.containsKey(mrn)); //while patientmap has the same mrn
+        } while (patientMap.containsKey(mrn)); //while patientMap has the same mrn
         return mrn;
     }
 
@@ -224,4 +383,38 @@ public class HospitalSystem {
         if (!input.trim().isEmpty()) setter.accept(input); 
     }
 
+    private Doctor selectDoctor(int category) {
+        List<Doctor> availableDoctors = new ArrayList<>();
+        switch (category) {
+            case 1:
+                availableDoctors.add(doctorList.get(0));
+                availableDoctors.add(doctorList.get(1));
+                availableDoctors.add(doctorList.get(2));
+                break;
+            case 2:
+                availableDoctors.add(doctorList.get(3));
+                availableDoctors.add(doctorList.get(4));
+                availableDoctors.add(doctorList.get(5));
+                break;
+            case 3:
+                availableDoctors.add(doctorList.get(6));
+                availableDoctors.add(doctorList.get(7));
+                break;
+            case 4:
+                availableDoctors.add(doctorList.get(7));
+                availableDoctors.add(doctorList.get(8));
+                break;
+            case 5:
+                availableDoctors.add(doctorList.get(9));
+                break;
+        }
+
+        System.out.println("\nAvailable Doctors:");
+        for (int i = 0; i < availableDoctors.size(); i++) {
+            Doctor doc = availableDoctors.get(i);
+            System.out.println((i + 1) + ". " + doc.getName() + " (" + doc.getSpecialty() + ")");
+        }
+        int choice = Main.getIntegerInput(1, availableDoctors.size());
+        return availableDoctors.get(choice - 1);
+    }
 }
