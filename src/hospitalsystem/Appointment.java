@@ -49,7 +49,6 @@ public class Appointment {
     }
 
     // Constructor used for JSON Deserialization (Loading from file)
-    // We create a temporary Doctor object here to satisfy the class requirement
     @JsonCreator
     public Appointment(
             @JsonProperty("date") LocalDate date,
@@ -64,7 +63,6 @@ public class Appointment {
         this.concerns = concerns;
         this.timeCreated = timeCreated;
 
-        // Reconstruct a placeholder Doctor object so the system doesn't crash on load
         this.doctor = new Doctor(doctorName, "N/A", "N/A", "N/A", doctorSpecialty);
     }
 

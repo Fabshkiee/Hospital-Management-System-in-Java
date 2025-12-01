@@ -1,0 +1,21 @@
+{
+  "name" : "b",
+  "dateOfBirth" : "b",
+  "sex" : "f",
+  "contactNumber" : "f",
+  "patientID" : "377995",
+  "address" : "f",
+  "emergencyContactName" : "",
+  "emergencyContactNumber" : "f",
+  "insurance" : "f",
+  "allergies" : "f",
+  "height" : "f",
+  "weight" : "f",
+  "chronicIllnesses" : "None",
+  "pastSurgeries" : "None",
+  "currentMedications" : "None",
+  "familyHistory" : "None",
+  "disability" : "None",
+  "appointments" : [ ],
+  "isArchived" : false
+}

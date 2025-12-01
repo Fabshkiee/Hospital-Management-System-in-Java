@@ -1,0 +1,21 @@
+{
+  "name" : "Holly Skit",
+  "dateOfBirth" : "2000-12-10",
+  "sex" : "f",
+  "contactNumber" : "09123123123",
+  "patientID" : "422256",
+  "address" : "Iloilo City",
+  "emergencyContactName" : "Jane Skit",
+  "emergencyContactNumber" : "09123123123",
+  "insurance" : "Free Insurance Inc.",
+  "allergies" : "Bees",
+  "height" : "1.54",
+  "weight" : "56",
+  "chronicIllnesses" : "None",
+  "pastSurgeries" : "None",
+  "currentMedications" : "None",
+  "familyHistory" : "None",
+  "disability" : "None",
+  "appointments" : [ ],
+  "isArchived" : false
+}

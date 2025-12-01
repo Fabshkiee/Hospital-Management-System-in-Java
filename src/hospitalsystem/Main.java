@@ -1,15 +1,25 @@
 package hospitalsystem;
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    private static Scanner scanner = new Scanner(System.in);
-    private static HospitalSystem system = new HospitalSystem();
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final HospitalSystem system = new HospitalSystem();
 
     public static void main(String[] args) {
-        system.initialize(); //load doctors
-        runMainMenu();
-        
+        // Instantiate Login handler
+        Login loginHandler = new Login(scanner);
+        Dashboard dashboard = new Dashboard();
+        dashboard.show(scanner);
+        // Run Login
+        if (loginHandler.performLogin()) {
+            // If successful, initialize and run system
+            system.initialize();
+            runMainMenu();
+        } else {
+            System.out.println("Login failed. Exiting system.");
+        }
     }
 
     private static void runMainMenu() {
@@ -30,7 +40,6 @@ public class Main {
                     system.scheduleNewAppointment();
                     break;
                 case 4:
-                    // Updated to call the new search menu
                     system.searchPatientMenu();
                     break;
                 case 5:
@@ -46,28 +55,31 @@ public class Main {
 
             if (isRunning) {
                 System.out.println("\nPress Enter to return to the main menu...");
-                scanner.nextLine(); // Wait for user
+                scanner.nextLine();
             }
         }
-        scanner.close(); // Close the scanner when the program exits
+        scanner.close();
     }
 
     private static void printMainMenu() {
         clearScreen();
-        System.out.println("\n***********************************************");
-        System.out.println("* *");
-        System.out.println("* HOSPITAL MANAGEMENT SYSTEM MENU       *");
-        System.out.println("* *");
-        System.out.println("***********************************************");
-        System.out.println("* 1. Create New Patient Record              *");
-        System.out.println("* 2. Update Existing Patient's Information  *");
-        System.out.println("* 3. Add Patient's Appointment              *");
-        // Updated menu text
-        System.out.println("* 4. Search/View Patient Information        *");
-        System.out.println("* 5. Delete Patient's Information           *");
-        System.out.println("* 0. Exit Program                           *");
-        System.out.println("***********************************************");
-        System.out.print("\nPlease input a number to continue: ");
+        
+        System.out.println("\n");
+        // Header
+        System.out.println(Colors.BLUE_BOLD + "   HOSPITAL MANAGEMENT SYSTEM" + Colors.RESET);
+        System.out.println(Colors.BLUE + "   ──────────────────────────────────────────" + Colors.RESET);
+        
+        // Menu Options (Clean List)
+        System.out.println("   " + Colors.WHITE_BOLD + "1." + Colors.RESET + " Register New Patient");
+        System.out.println("   " + Colors.WHITE_BOLD + "2." + Colors.RESET + " Update Patient Info");
+        System.out.println("   " + Colors.WHITE_BOLD + "3." + Colors.RESET + " Schedule Appointment");
+        System.out.println("   " + Colors.WHITE_BOLD + "4." + Colors.RESET + " Search/View Records");
+        System.out.println("   " + Colors.WHITE_BOLD + "5." + Colors.RESET + " Archive Patient Record");
+        
+        System.out.println(Colors.BLUE + "   ──────────────────────────────────────────" + Colors.RESET);
+        System.out.println("   " + Colors.RED_BOLD + "0. LOGOUT" + Colors.RESET);
+        System.out.println("\n");
+        System.out.print(Colors.BLUE_BOLD + "   >> Select Option: " + Colors.RESET);
     }
 
     public static int getIntegerInput(int min, int max) {
@@ -80,28 +92,26 @@ public class Main {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter numbers only.");
-                scanner.next(); // Clear the invalid input from the scanner
+                scanner.next();
             }
         }
-        scanner.nextLine(); // Consume the leftover newline character
+        scanner.nextLine();
         return choice;
     }
 
-
     public static void clearScreen() {
-        // This is a simple way to "clear" the console
         try {
             final String os = System.getProperty("os.name");
             if (os.contains("Windows")) {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             } else {
-                Runtime.getRuntime().exec("clear");
+                new ProcessBuilder("clear").inheritIO().start().waitFor();
             }
-        } catch (final Exception e) {
-            // Handle exceptions, e.g., print stack trace
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            e.printStackTrace(); 
         }
-
     }
 }
-

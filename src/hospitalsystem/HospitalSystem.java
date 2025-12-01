@@ -16,10 +16,10 @@ import java.util.function.Consumer;
 
 
 public class HospitalSystem {
-    private Map<String, Patient> patientMap;
-    private List<Doctor> doctorList;
-    private IDataManager dataManager;
-    private Scanner scanner;
+    private final Map<String, Patient> patientMap;
+    private final List<Doctor> doctorList;
+    private final IDataManager dataManager;
+    private final Scanner scanner;
 
     // Define Doctor's Shift
     private static final LocalTime SHIFT_START = LocalTime.of(9, 0); // 9:00 AM
@@ -41,7 +41,7 @@ public class HospitalSystem {
         for (Patient p : patients) {
             patientMap.put(p.getPatientID(), p); //map patientID to Patient object
         }
-        System.out.println("Loaded " + patientMap.size() + " patient records (active & archived).");
+        System.out.println(Colors.GREEN + "   >> System Loaded: " + patientMap.size() + " records found." + Colors.RESET);
     }
 
     //initialize doctors
@@ -58,26 +58,38 @@ public class HospitalSystem {
         doctorList.add(new Doctor("Dr. Ling", "N/A", "F", "N/A", "Pediatrician"));
     }
 
+    private void printHeader(String title) {
+        Main.clearScreen();
+        System.out.println("\n");
+        System.out.println(Colors.BLUE_BOLD + "   " + title + Colors.RESET);
+        System.out.println(Colors.BLUE + "   " + "─".repeat(title.length()) + Colors.RESET);
+        System.out.println("");
+    }
+
     //crud operations
     public void createNewPatient(){
-        System.out.println("--- Create New Patient Record ---");
+        printHeader("──── CREATE NEW PATIENT RECORD ────");
+        System.out.println(Colors.WHITE + "   Please enter the following details:" + Colors.RESET);
         String name = getStringInput("Full Name: ");
         String dob = getStringInput("Date of Birth (e.g., YYYY-MM-DD): ");
         String sex = getValidatedStringInput("Sex (M or F): ", new String[]{"M", "F"}); //valid choices
         String address = getStringInput("Address: ");
         String contactNum = getStringInput("Contact Number: ");
+        System.out.println(Colors.BLUE + "\n   -- Emergency Info --" + Colors.RESET);
         String emConName = getStringInput("Emergency Contact Name: ");
         String emConNum = getStringInput("Emergency Contact Number: ");
+        System.out.println(Colors.BLUE + "\n   -- Medical Profile --" + Colors.RESET);
         String insurance = getStringInput("Insurance: ");
         String allergies = getStringInput("Allergies: ");
-        String height = getStringInput("Height: ");
-        String weight = getStringInput("Weight: ");
+        String height = getStringInput("Height (m): ");
+        String weight = getStringInput("Weight (kg): ");
 
         String patientID = generateNewMrn();
-        System.out.println("Generated " + name + "'s ID (MRN): " + patientID);
+        System.out.println(Colors.CYAN + "\n>> Generating MRN... " + Colors.WHITE_BOLD + patientID + Colors.RESET);
 
         Patient patient = new Patient(name, dob, sex, contactNum, patientID, address, emConName, emConNum, insurance, allergies, height, weight);
 
+        System.out.println(Colors.BLUE + "\n-- Medical History Questionnaire --" + Colors.RESET);
         patient.setChronicIllnesses(getYesNoDetails("Any chronic illnesses? (yes/no): "));
         patient.setPastSurgeries(getYesNoDetails("Any surgeries in the past? (yes/no): "));
         patient.setCurrentMedications(getYesNoDetails("Currently taking any medications? (yes/no): "));
@@ -86,16 +98,17 @@ public class HospitalSystem {
 
         patientMap.put(patientID, patient); //add mrn and patient together to map
         dataManager.savePatient(patient); //save patient using data manager
-        System.out.println("Patient record created successfully.");
+        System.out.println("\n   " + Colors.GREEN_BOLD + ">> Success! Patient record created." + Colors.RESET);
     }
 
     public void searchPatientMenu(){
-        System.out.println("""
-        --- Search Patient Records ---
-        1. Search by Name
-        2. Search by Patient ID (MRN)
-        0. Return to Main Menu
-                """);
+        printHeader("──── SEARCH PATIENT RECORDS ────");
+        System.out.println("   " + Colors.WHITE_BOLD + "[1]" + Colors.RESET + " Search by Name");
+        System.out.println("   " + Colors.WHITE_BOLD + "[2]" + Colors.RESET + " Search by MRN");
+        System.out.println("   " + Colors.WHITE_BOLD + "[0]" + Colors.RESET + " Return");
+
+        System.out.println(Colors.BLUE + "   ─────────────────────────" + Colors.RESET);
+        System.out.print(Colors.BLUE_BOLD + "   >> Select: " + Colors.RESET);
         int choice = Main.getIntegerInput(0, 2);
         Patient patient = null;
 
@@ -106,25 +119,27 @@ public class HospitalSystem {
         }
 
         if (patient != null){
-            System.out.println("\n--- Displaying Full Patient Record ---");
+            Main.clearScreen();
+            System.out.println("\n─── Displaying Full Patient Record ───");
             if (patient.isArchived()) {
-                System.out.println("!!! THIS PATIENT IS ARCHIVED - READ ONLY !!!");
+                System.out.println(Colors.RED_BOLD + "\n   !!! ARCHIVED RECORD - READ ONLY !!!" + Colors.RESET);
             }
             System.out.println(patient.getDetails());
         }
     }
 
     public void updateExistingPatient(){
-        System.out.println("--- Update Existing Patient Information ---");
+        printHeader("──── UPDATE PATIENT INFORMATION ────");
         Patient patient = searchPatientByName();
         if (patient == null) return;
 
         if (patient.isArchived()) {
-            System.out.println("ERROR: Cannot update an Archived patient.");
+            System.out.println(Colors.RED + "   >> ERROR: Cannot update an Archived patient." + Colors.RESET);
             return;
         }
 
-        System.out.println("Now updating " + patient.getName() + ". Press Enter to skip a field.");
+        System.out.println(Colors.CYAN + "\n   Updating: " + Colors.WHITE_BOLD + patient.getName() + Colors.RESET);
+        System.out.println(Colors.WHITE + "   (Press Enter to skip a field)" + Colors.RESET);
         updateStringField("Name", patient.getName(), patient::setName);
         updateStringField("Date of Birth", patient.getDOB(), patient::setDOB);
         updateStringField("Address", patient.getAddress(), patient::setAddress);
@@ -135,50 +150,59 @@ public class HospitalSystem {
         updateStringField("Allergies", patient.getAllergies(), patient::setAllergies);
         updateStringField("Height", patient.getHeight(), patient::setHeight);
         updateStringField("Weight", patient.getWeight(), patient::setWeight);
+
+        dataManager.savePatient(patient);
+        System.out.println("\n   " + Colors.GREEN_BOLD + ">> Update Complete." + Colors.RESET);
     }
 
     public void archivePatientRecord() {
-        System.out.println("--- Archive Patient's Information ---");
+        printHeader("──── ARCHIVE PATIENT RECORD ────");
         Patient patient = searchPatientByName();
         if (patient == null) return;
 
         if (patient.isArchived()) {
-            System.out.println("Patient is already archived.");
+            System.out.println(Colors.YELLOW + "   >> This patient is already archived." + Colors.RESET);
             return;
         }
 
-        System.out.println("WARNING: This will ARCHIVE the record for " + patient.getName() + " (MRN: " + patient.getPatientID() + ").");
-        System.out.println("Archived patients cannot be modified.");
-        String confirm = getValidatedStringInput("Are you sure? (yes/no): ", new String[]{"yes", "no"});
+        Main.clearScreen();
+        System.out.println(Colors.RED + "\n   WARNING: Archiving " + patient.getName() + " (MRN: " + patient.getPatientID() + ")." + Colors.RESET);
+        System.out.println("   Archived patients cannot be modified.");
+        String confirm = getValidatedStringInput("   Are you sure? (yes/no): ", new String[]{"yes", "no"});
 
         if (confirm.equalsIgnoreCase("yes")) {
             // Archive Logic
             dataManager.archivePatient(patient);
-            System.out.println("Successfully archived patient record.");
+            System.out.println("\n   " + Colors.GREEN_BOLD + ">> Patient archived successfully." + Colors.RESET);
         } else {
-            System.out.println("Operation cancelled.");
+            Main.clearScreen();
+            System.out.println(Colors.YELLOW + "   >> Operation cancelled." + Colors.RESET);
         }
     }
 
     public void scheduleNewAppointment() {
+        Main.clearScreen();
         System.out.println("--- Schedule New Appointment ---");
         Patient patient = searchPatientByName();
+        Main.clearScreen();
+
         if (patient == null) return;
 
         if (patient.isArchived()) {
-            System.out.println("ERROR: Cannot schedule appointments for an Archived patient.");
+            System.out.println(Colors.RED + "   >> ERROR: Cannot schedule for Archived patient." + Colors.RESET);
             return;
         }
 
-        System.out.println("Scheduling for: " + patient.getName());
+        System.out.println(Colors.CYAN + "   Patient: " + Colors.WHITE_BOLD + patient.getName() + Colors.RESET);
 
         // 1. Get Concern
-        System.out.println("\nCategories of Concern:");
-        System.out.println("1. Physical Health");
-        System.out.println("2. Mental Health");
-        System.out.println("3. Women's Health");
-        System.out.println("4. Men's Health");
-        System.out.println("5. Child Health");
+        System.out.println("   \nCategories of Concern:");
+        System.out.println("   1. Physical Health");
+        System.out.println("   2. Mental Health");
+        System.out.println("   3. Women's Health");
+        System.out.println("   4. Men's Health");
+        System.out.println("   5. Child Health");
+        System.out.print(Colors.BLUE_BOLD + "   >> Choice: " + Colors.RESET);
         int categoryChoice = Main.getIntegerInput(1, 5);
         String concerns = getStringInput("Briefly describe the concern: ");
 
@@ -195,17 +219,17 @@ public class HospitalSystem {
         Appointment appointment = new Appointment(patient, selectedDoctor, validDateTime.toLocalDate(), validDateTime.toLocalTime(), concerns);
         patient.addAppointment(appointment);
         dataManager.savePatient(patient);
-
-        System.out.println("\n--- Appointment Confirmed! ---");
-        System.out.println("Patient: " + patient.getName());
-        System.out.println("Doctor: " + selectedDoctor.getName());
-        System.out.println("Date: " + validDateTime.format(DATE_FMT));
-        System.out.println("Time: " + validDateTime.format(TIME_FMT));
+        Main.clearScreen();
+        System.out.println("\n   " + Colors.GREEN_BOLD + ">> Appointment Confirmed!" + Colors.RESET);
+        System.out.println("   Patient: " + patient.getName());
+        System.out.println("   Doctor: " + selectedDoctor.getName());
+        System.out.println("   Date: " + validDateTime.format(DATE_FMT));
+        System.out.println("   Time: " + validDateTime.format(TIME_FMT));
     }
 
     private void displayDoctorSchedule(Doctor doctor) {
-        System.out.println("\nChecking schedule for " + doctor.getName() + "...");
-        System.out.println("Doctor's Shift: " + SHIFT_START.format(TIME_FMT) + " - " + SHIFT_END.format(TIME_FMT));
+        System.out.println("\n   Checking schedule for " + Colors.WHITE_BOLD + doctor.getName() + Colors.RESET + "...");
+        System.out.println("   Doctor's Shift: " + SHIFT_START.format(TIME_FMT) + " - " + SHIFT_END.format(TIME_FMT));
 
         List<Appointment> doctorApps = new ArrayList<>();
 
@@ -221,17 +245,17 @@ public class HospitalSystem {
         }
 
         if (doctorApps.isEmpty()) {
-            System.out.println("This doctor has no upcoming appointments.");
+            System.out.println(Colors.GREEN + "   >> No upcoming appointments found. Status: AVAILABLE" + Colors.RESET);
         } else {
             // Sort by date/time
             doctorApps.sort(Comparator.comparing(Appointment::getAppointmentDate).thenComparing(Appointment::getAppointmentTime));
 
-            System.out.println("--- Doctor's Busy Slots ---");
+            System.out.println(Colors.YELLOW + "   >> Busy Slots:" + Colors.RESET);
             for (Appointment app : doctorApps) {
                 System.out.println(app.getAppointmentDate().format(DATE_FMT) + " at " +
                         app.getAppointmentTime().format(TIME_FMT) + " -- [OCCUPIED]");
             }
-            System.out.println("---------------------------");
+            System.out.println("───────────────────────────");
         }
     }
 
@@ -242,30 +266,32 @@ public class HospitalSystem {
         while (true) {
             try {
                 // Get Date
-                System.out.println("\nEnter Date (MM/dd/yy): ");
+                System.out.println("\n   " + Colors.BLUE_BOLD + ">> Enter Date" + Colors.RESET + " (MM/dd/yy): ");
+                System.out.print("   Input: ");
                 String dateStr = scanner.nextLine();
                 LocalDate date = LocalDate.parse(dateStr, dateFormatter);
 
                 if (date.isBefore(LocalDate.now())) {
-                    System.out.println("Error: Date must be in the future.");
+                    System.out.println(Colors.RED + "   >> Error: Date must be in the future." + Colors.RESET);
                     continue;
                 }
 
                 // Get Time
-                System.out.println("Enter Time (e.g. 9:00 AM, 2:30 PM): ");
-                System.out.println("Note: 30-min intervals only (9:00, 9:30...)");
+                System.out.println("\n   " + Colors.BLUE_BOLD + ">> Enter Time" + Colors.RESET + " (e.g. 9:00 AM, 2:30 PM): ");
+                System.out.println("   Note: 30-min intervals only (9:00, 9:30...)");
+                System.out.print("   Input: ");
                 String timeStr = scanner.nextLine();
                 LocalTime time = LocalTime.parse(timeStr.toUpperCase(), timeFormatter);
 
                 // 1. Shift Check
                 if (time.isBefore(SHIFT_START) || time.isAfter(SHIFT_END)) {
-                    System.out.println("Error: Doctor is off duty. Shift is " + SHIFT_START.format(TIME_FMT) + " to " + SHIFT_END.format(TIME_FMT));
+                    System.out.println(Colors.RED + "   >> Error: Doctor is off duty." + Colors.RESET);
                     continue;
                 }
 
                 // 2. Interval Check
                 if (time.getMinute() != 0 && time.getMinute() != 30) {
-                    System.out.println("Error: Appointments must be on the hour or half-hour (e.g. 9:00 or 9:30).");
+                    System.out.println(Colors.RED + "   >> Error: Appointments must be on the hour or half-hour (e.g. 9:00 or 9:30)." + Colors.RESET);
                     continue;
                 }
 
@@ -283,14 +309,14 @@ public class HospitalSystem {
                 }
 
                 if (conflict) {
-                    System.out.println("Error: Doctor is already booked at this time. Please choose another.");
+                    System.out.println(Colors.RED + "   >> Error: Slot occupied." + Colors.RESET);
                     continue;
                 }
 
                 return LocalDateTime.of(date, time);
 
             } catch (DateTimeParseException e) {
-                System.out.println("Invalid format. Date: MM/dd/yy, Time: h:mm AM/PM");
+                System.out.println(Colors.RED + "   >> Invalid format. Try again." + Colors.RESET);
             }
         }
     }
@@ -319,13 +345,13 @@ public class HospitalSystem {
             for (String option : validOptions) { //for each option in options
                 if (input.equals(option.toLowerCase())) return input;
             }
-            System.out.println("Invalid input. Please try again.");
+            System.out.println(Colors.RED + "   >> Invalid input." + Colors.RESET);
         }
     }
 
     private String getYesNoDetails(String prompt) {
         String response = getValidatedStringInput(prompt, new String[]{"yes", "no"});
-        if (response.equalsIgnoreCase("yes")) return getStringInput("Please specify: ");
+        if (response.equalsIgnoreCase("yes")) return getStringInput("   Please specify: ");
         return "None";
     }
 
@@ -341,23 +367,24 @@ public class HospitalSystem {
         }
 
         if (matchedPatients.isEmpty()){
-            System.out.println("No patients found with the name containing: " + searchInput);
+            System.out.println(Colors.YELLOW + "   >> No patients found with the name containing: " + Colors.WHITE_BOLD + searchInput + Colors.RESET);
             return null;
         }
-
-        System.out.println("\n--- Search Results ---");
-        System.out.printf("%-5s %-10s %-25s %-15s %-10s\n", "ID", "MRN", "Name", "DOB", "Status");
-        System.out.println("-----------------------------------------------------------------------");
+        Main.clearScreen();
+        System.out.println("\n   " + Colors.CYAN + "─── Search Results ───" + Colors.RESET);
+        System.out.printf("   %-5s %-10s %-25s %-15s %-10s\n", "ID", "MRN", "Name", "DOB", "Status");
+        System.out.println("   ──────────────────────────────────────────────────────────────────────");
 
         for (int i = 0; i < matchedPatients.size(); i++){
             Patient p = matchedPatients.get(i);
             String status = p.isArchived() ? "Archived" : "Active";
-            System.out.printf("%-5d %-10s %-25s %-15s %-10s\n", i + 1, 
+            System.out.printf("   %-5d %-10s %-25s %-15s %-10s\n", i + 1, 
             p.getPatientID(), p.getName(), p.getDOB(), status);
         }
-        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("   ──────────────────────────────────────────────────────────────────────");
 
-        System.out.println("Enter ID number of the patient to view full record, or 0 to cancel: ");
+        System.out.println("\n   " + Colors.WHITE + "Enter ID number of the patient or 0 to cancel: " + Colors.RESET);
+        System.out.print(Colors.BLUE_BOLD + "   >> Choice: " + Colors.RESET);
         int choice = Main.getIntegerInput(0, matchedPatients.size());
 
         if (choice == 0) {
@@ -371,14 +398,14 @@ public class HospitalSystem {
         if (patientMap.containsKey(patientID)){
             return patientMap.get(patientID);
         } else {
-            System.out.println("Error: No patient found with MRN " + patientID);
+            System.out.println(Colors.RED + "   >> Error: No patient found with MRN: " + Colors.RESET + patientID);
             return null;
         }
 
     }
 
     private void updateStringField(String fieldName, String currentValue, Consumer<String> setter) {
-        System.out.print(fieldName + " [" + currentValue + "]: ");
+        System.out.print(Colors.BLUE + "   " + fieldName + Colors.RESET + " [" + currentValue + "]: ");
         String input = scanner.nextLine();
         if (!input.trim().isEmpty()) setter.accept(input); 
     }
@@ -409,11 +436,12 @@ public class HospitalSystem {
                 break;
         }
 
-        System.out.println("\nAvailable Doctors:");
+        System.out.println("\n" + Colors.WHITE_BOLD + "Available Doctors:" + Colors.RESET);
         for (int i = 0; i < availableDoctors.size(); i++) {
             Doctor doc = availableDoctors.get(i);
-            System.out.println((i + 1) + ". " + doc.getName() + " (" + doc.getSpecialty() + ")");
+            System.out.println("   "+(i + 1) + ". " + doc.getName() + " (" + doc.getSpecialty() + ")");
         }
+        System.out.print(Colors.BLUE_BOLD + "   >> Select Doctor: " + Colors.RESET);
         int choice = Main.getIntegerInput(1, availableDoctors.size());
         return availableDoctors.get(choice - 1);
     }

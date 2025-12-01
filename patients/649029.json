@@ -1,0 +1,35 @@
+{
+  "name" : "Jane Doe",
+  "dateOfBirth" : "2000-03-12",
+  "sex" : "f",
+  "contactNumber" : "09132123",
+  "patientID" : "649029",
+  "address" : "Iloilo City",
+  "emergencyContactName" : "John Doe",
+  "emergencyContactNumber" : "09123123123",
+  "insurance" : "N/A",
+  "allergies" : "N/A",
+  "height" : "1.80",
+  "weight" : "65",
+  "chronicIllnesses" : "None",
+  "pastSurgeries" : "None",
+  "currentMedications" : "None",
+  "familyHistory" : "None",
+  "disability" : "None",
+  "appointments" : [ {
+    "date" : "2025-11-30",
+    "time" : "09:00",
+    "concerns" : "Period Pain",
+    "doctorName" : "Dr. Louis",
+    "doctorSpecialty" : "Obstetrician-Gynecologist",
+    "timeCreated" : "2025-11-28 21:17:30"
+  }, {
+    "date" : "2026-04-20",
+    "time" : "09:30",
+    "concerns" : "Back Pain",
+    "doctorName" : "Dr. Kim",
+    "doctorSpecialty" : "Orthopedic Surgeon",
+    "timeCreated" : "2025-11-30 15:10:30"
+  } ],
+  "isArchived" : false
+}

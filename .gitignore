@@ -5,3 +5,13 @@
 .bin/
 
 settings.json
+
+.idea/
+
+.vscode/
+
+lib/
+
+out/
+
+META-INF/

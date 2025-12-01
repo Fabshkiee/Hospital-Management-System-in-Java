@@ -1,0 +1,28 @@
+{
+  "name" : "Ryuske Sendo Fabros",
+  "dateOfBirth" : "2006-04-26",
+  "sex" : "m",
+  "contactNumber" : "09123123",
+  "patientID" : "749974",
+  "address" : "Iloilo City",
+  "emergencyContactName" : "Fabros",
+  "emergencyContactNumber" : "0912312313",
+  "insurance" : "Med Co.",
+  "allergies" : "N/A",
+  "height" : "1.70",
+  "weight" : "65",
+  "chronicIllnesses" : "None",
+  "pastSurgeries" : "None",
+  "currentMedications" : "Biogesic",
+  "familyHistory" : "None",
+  "disability" : "None",
+  "appointments" : [ {
+    "date" : "2025-11-30",
+    "time" : "10:30",
+    "concerns" : "Back Pain",
+    "doctorName" : "Dr. Lee",
+    "doctorSpecialty" : "Physical Therapist",
+    "timeCreated" : "2025-11-28 08:39:16"
+  } ],
+  "isArchived" : false
+}

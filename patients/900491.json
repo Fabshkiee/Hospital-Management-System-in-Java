@@ -1,0 +1,21 @@
+{
+  "name" : "John Mark",
+  "dateOfBirth" : "2000-12-22",
+  "sex" : "m",
+  "contactNumber" : "dfs",
+  "patientID" : "900491",
+  "address" : "cuh",
+  "emergencyContactName" : "3422",
+  "emergencyContactNumber" : "34",
+  "insurance" : "3424234",
+  "allergies" : "234",
+  "height" : "234",
+  "weight" : "34",
+  "chronicIllnesses" : "None",
+  "pastSurgeries" : "None",
+  "currentMedications" : "None",
+  "familyHistory" : "None",
+  "disability" : "None",
+  "appointments" : [ ],
+  "isArchived" : false
+}
